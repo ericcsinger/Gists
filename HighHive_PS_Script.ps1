@@ -98,6 +98,10 @@ Foreach ($Path_To_Process in $All_Paths_To_Process)
         #START: ReAnalyze if mitigation in place
         $Script_Section = "ReAnalyze if mitigation in place for path $($Path_To_Process)"
         Write-Host "[$($Script_Section)]: START"
+
+        Write-Host "[$($Script_Section)]: START"
+        $Path_ACL = $null
+        $Path_ACL = Get-ACL -Path $Path_To_Process
         
         $Path_ACL_Users = $null
         $Path_ACL_Users = $Path_ACL.Access | where-object {$_.IdentityReference -eq "BUILTIN\Users"}
