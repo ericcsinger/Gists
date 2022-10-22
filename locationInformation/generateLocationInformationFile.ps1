@@ -7,8 +7,6 @@ $ISO3166_2 = Import-Csv -Path ".\loc221csv\2022-1 SubdivisionCodes.csv"
 $AllCapitals = Import-CSV -Path ".\ip2location-country-information-basic\IP2LOCATION-COUNTRY-INFORMATION-BASIC.CSV"
 $AllCountryInformation = Import-Csv -Path ".\ip2location-geonameid\IP2LOCATION-GEONAMEID.CSV"
 
-
-
 #END: Import Data
 ####################################
 
@@ -68,7 +66,7 @@ Foreach ($Location in $AllLocationInformationJoined)
         'iso3166-1_numeric' = $Location.'iso3166-1_numeric'
         capital = $($Location.capital)
         allSubdivisions = [ordered]@{}
-        allCountryInformation = [ordered]@{}
+        allRegions = [ordered]@{}
         }
 
     Foreach ($Sub in $Location.allSubdivisions)
@@ -92,12 +90,13 @@ Foreach ($Location in $AllLocationInformationJoined)
 
     Foreach ($CountryInfo in $Location.allCountryInformation)
         {
-        $CountryInfoObject = $null
-        $CountryInfoObject = [ordered]@{
-            'iso3166-2_name' = $CountryInfoObject.regionName
-            'iso3166-2_type' = $CountryInfoObject.cityName
+        if ($LocationObject.allRegions.Keys -notcontains $CountryInfo.regionName)
+            {
+            $LocationObject.allRegions.Add($($CountryInfo.regionName), ([ordered]@{allCities = (New-Object -TypeName "System.Collections.ArrayList") }))
             }
-        $LocationObject.allSubdivisions.Add("$($CountryInfo.regionName)_$($CountryInfo.CityName)", $CountryInfoObject) 
+
+        
+        [void]( $LocationObject.allRegions.$($CountryInfo.regionName).allCities.Add($($CountryInfo.cityName)) )
         }
 
     $AllLocationInformationJoinedHashTable.add($Location.'iso3166-1_alpha3', $LocationObject)
@@ -112,7 +111,6 @@ Foreach ($Location in $AllLocationInformationJoined)
 
 $AllLocationInformationJoined | ConvertTo-Json -Depth 100 | Out-File -FilePath ".\AllLocationInformationJoined.json"
 $AllLocationInformationJoinedHashTable | ConvertTo-Json -Depth 100 | Out-File -FilePath ".\AllLocationInformationJoinedHashTable.json"
-
 
 #END: Export Data
 ####################################
